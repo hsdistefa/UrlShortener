@@ -1,1 +1,8 @@
-Build instructions
+Build
+* 'mvn package'
+
+
+Hello world
+* build
+* execute 'bin/runHelloWorldServer'
+* in another terminal, execute 'bin/runHellowWorldClient'
