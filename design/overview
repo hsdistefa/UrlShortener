@@ -25,14 +25,30 @@ frontend host
 database
 
 
-== User request ==
+== Request ==
+* {
+    "original-url": "asdf"
+  }
+
+
+== Response ==
+* {
+    "original-url": "asdf",
+    "short-url": "ghjkl"
+  }
 
 
 == Frontend host ==
-* java
+* language
+** java
 ** simple
 ** structured
 ** widely supported
+
+* server
+** Spark
+** lightweight
+** looked easy
 
 * tasks
 ** validate url format
@@ -52,6 +68,10 @@ database
 ** hash (pk)
 ** url
 ** timestamp
+
+* nosql
+** DynamoDB
+** budi works on it
 
 
 == Future ==

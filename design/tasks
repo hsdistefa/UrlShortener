@@ -1,0 +1,7 @@
+* Spark "hello world"
+* Setup DynamoDB table
+* Get request / response API working with dummy values
+* Validate url format
+* Implement hashing functions
+* Hook up database to frontend
+* Implement domain restrictions
