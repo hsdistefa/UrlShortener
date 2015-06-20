@@ -1,2 +1,4 @@
 # UrlShortener
-Initial
+Requirements
+* java 1.8
+* maven

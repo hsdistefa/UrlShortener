@@ -1,3 +1,4 @@
+* configure git to ignore build directories, etc
 * Spark "hello world"
 * Setup DynamoDB table
 * Get request / response API working with dummy values
