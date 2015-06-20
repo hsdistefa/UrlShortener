@@ -1,0 +1,62 @@
+== Description ==
+UrlShortener is a tinyurl-like service which allows users to quickly
+and easily create a more manageable link to a possibly lengthy url.
+
+
+== Use stories ==
+* user wants to tweet a link which would not fit within the tweet's
+  character limitations
+* user wants to hide a link to a dumb internet user
+
+
+== Use cases ==
+* shorten url
+* redirect from shortened url
+* restrict domains (maybe)
+
+
+== Flow ==
+user request
+  |   ^
+  v   |
+frontend host
+  |   ^
+  v   |
+database
+
+
+== User request ==
+
+
+== Frontend host ==
+* java
+** simple
+** structured
+** widely supported
+
+* tasks
+** validate url format
+** check for restricted domains
+** generate hash (shortened url)
+** check db for existing entry
+** if exists and url != value
+**   double hash
+**   put kv pair into db
+** else if not exists
+**   put kv pair into db
+** respond to user
+
+
+== Database ==
+* schema
+** hash (pk)
+** url
+** timestamp
+
+
+== Future ==
+* logging
+* metrics
+* alarms
+* caching layer
+* cold storage
