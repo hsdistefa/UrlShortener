@@ -13,7 +13,8 @@ public class AddressValidator extends Validator {
     // Get Url Regex from config file?
     //private static final String REGEX = AddressValidator.getUrlRegex();
 
-    private static final String REGEX = "";
+    private static final String REGEX = "^(https?://)(www.)?([a-zA-Z0-9]+).[a-zA-Z0-9]*.[a-z]{3}.?([a-z]+)?$";
+
     private static final Pattern PATTERN = Pattern.compile(REGEX);
 
     public AddressValidator(Config config) {
