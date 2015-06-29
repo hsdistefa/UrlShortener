@@ -1,21 +1,17 @@
 package com.urlshortener.validation;
 
+import org.apache.commons.validator.routines.UrlValidator;
+
 import com.urlshortener.config.Config;
 import com.urlshortener.model.ShortenRequest;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 
 
 /**
  * Validates the request's url format
  */
 public class AddressValidator extends Validator {
-    // Get Url Regex from config file?
-    //private static final String REGEX = AddressValidator.getUrlRegex();
-
-    private static final String REGEX = "^(https?://)(www.)?([a-zA-Z0-9]+).[a-zA-Z0-9]*.[a-z]{3}.?([a-z]+)?$";
-
-    private static final Pattern PATTERN = Pattern.compile(REGEX);
+    // Get Url Validation options from config file?
+    private static UrlValidator urlValidator = new UrlValidator();
 
     public AddressValidator(Config config) {
         super(config);
@@ -26,8 +22,7 @@ public class AddressValidator extends Validator {
         if (req == null) {
             return false;
         }
-        Matcher matcher = PATTERN.matcher(req.getUrl());
-        return matcher.matches();
+        return urlValidator.isValid(req.getUrl());
     }
 
     @Override
