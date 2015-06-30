@@ -1,8 +1,23 @@
-* configure git to ignore build directories, etc
-* Spark "hello world"
+TODO:
+* Implement hashing functions
 * Setup DynamoDB table
+* Hook up database to frontend
+* Url dispatch
+* full stack tests
+
+LATER:
+* Implement domain restrictions
+* Setup config
+* App logging
+* Service logging
+* Metrics
+* Process nanny
+* Alarms
+* Caching layer
+* Colder storage
+
+DONE:
+* Configure git to ignore build directories, etc
+* Spark "hello world"
 * Get request / response API working with dummy values
 * Validate url format
-* Implement hashing functions
-* Hook up database to frontend
-* Implement domain restrictions
