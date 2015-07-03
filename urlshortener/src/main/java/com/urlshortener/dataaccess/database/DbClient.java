@@ -1,5 +1,6 @@
 package com.urlshortener.dataaccess.database;
 
+import com.urlshortener.config.Config;
 import com.urlshortener.dataaccess.model.UrlMappingData;
 
 
@@ -7,6 +8,12 @@ import com.urlshortener.dataaccess.model.UrlMappingData;
  * Class that defines data access operations
  */
 public abstract class DbClient {
+
+    private final Config config;
+
+    public DbClient(Config config) {
+        this.config = config;
+    }
 
     /**
      * Stores an (alias url -> original url) mapping

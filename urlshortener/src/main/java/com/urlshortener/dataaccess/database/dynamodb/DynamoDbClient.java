@@ -1,5 +1,6 @@
 package com.urlshortener.dataaccess.database.dynamodb;
 
+import com.urlshortener.config.Config;
 import com.urlshortener.dataaccess.database.DbClient;
 import com.urlshortener.dataaccess.model.UrlMappingData;
 
@@ -9,10 +10,15 @@ import com.urlshortener.dataaccess.model.UrlMappingData;
  */
 public class DynamoDbClient extends DbClient {
 
+    public DynamoDbClient(Config config) {
+        super(config);
+    }
+
     /**
      * Stores an (alias url -> original url) mapping
      * Does not overwrite
      */
+    @Override
     public void createUrlMapping(UrlMappingData data) {
         // TODO
     }
@@ -20,6 +26,7 @@ public class DynamoDbClient extends DbClient {
     /**
      * Given a original url, retrieve mapping data
      */
+    @Override
     public UrlMappingData getMappingForOriginalUrl(String originalUrl) {
         // TODO
         return null;
@@ -28,6 +35,7 @@ public class DynamoDbClient extends DbClient {
     /**
      * Given an alias url, retrieve mapping data
      */
+    @Override
     public UrlMappingData getMappingForAliasUrl(String aliasUrl) {
         // TODO
         return null;

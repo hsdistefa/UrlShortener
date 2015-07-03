@@ -12,11 +12,13 @@ import com.urlshortener.requesthandler.model.ShortenRequest;
  */
 public class AddressValidator extends Validator {
 
-    private final AppLogger logger = new AppLogger();
+    private final AppLogger log;
     private final UrlValidator urlValidator;
 
     public AddressValidator(Config config) {
         super(config);
+
+        log = new AppLogger(config);
 
         // TODO: move to config
         boolean allow2Slashes = true;
@@ -34,7 +36,7 @@ public class AddressValidator extends Validator {
 
     @Override
     public boolean validate(ShortenRequest req) {
-        logger.doAssert(req != null, "validate", "req should not be null");
+        log.doAssert(req != null, "validate", "req should not be null");
         return urlValidator.isValid(req.url);
     }
 

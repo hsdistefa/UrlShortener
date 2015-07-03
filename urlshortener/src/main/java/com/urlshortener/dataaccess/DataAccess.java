@@ -2,7 +2,9 @@ package com.urlshortener.dataaccess;
 
 import com.urlshortener.config.Config;
 import com.urlshortener.dataaccess.database.DbClient;
+import com.urlshortener.dataaccess.database.DbClientFactory;
 import com.urlshortener.dataaccess.database.DbClientPool;
+import com.urlshortener.dataaccess.database.DbDDLClient;
 import com.urlshortener.dataaccess.model.UrlMappingData;
 
 
@@ -12,11 +14,39 @@ import com.urlshortener.dataaccess.model.UrlMappingData;
 public class DataAccess {
 
     private final Config config;
+
+    private final DbDDLClient dbDDLClient;
     private final DbClientPool dbClientPool;
 
     public DataAccess(Config config) {
         this.config = config;
-        this.dbClientPool = new DbClientPool(config);
+
+        DbClientFactory dbClientFactory = new DbClientFactory(config);
+        this.dbDDLClient = dbClientFactory.createDDLClient();
+        this.dbClientPool = new DbClientPool(config, dbClientFactory);
+    }
+
+    /**
+     * Bootstraps the persistent store
+     * Fails if already bootstrapped
+     */
+    public void bootstrapPersistentStore() {
+
+        // TODO: bootstrap cache
+
+        // bootstrap database tables
+        dbDDLClient.bootstrapTables();
+    }
+
+    /**
+     * Verifies the persistent store is bootstrapped
+     */
+    public void verifyPersistentStore() {
+
+        // TODO: verify cache
+
+        // verify database tables
+        dbDDLClient.verifyTables();
     }
 
     /**

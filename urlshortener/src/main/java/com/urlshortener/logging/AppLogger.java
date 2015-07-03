@@ -1,9 +1,14 @@
 package com.urlshortener.logging;
 
+import com.urlshortener.config.Config;
+
 
 public class AppLogger {
 
-    public AppLogger() {
+    private final Config config;
+
+    public AppLogger(Config config) {
+        this.config = config;
     }
 
     public void fatal(String method, String message, String... info) {

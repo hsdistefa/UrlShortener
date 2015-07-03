@@ -13,16 +13,14 @@ import com.urlshortener.dataaccess.ClientPoolExhaustedException;
  */
 public class DbClientPool {
 
-    private final DbClientFactory clientFactory;
     private final ConcurrentLinkedQueue<DbClient> clientPool;
 
-    public DbClientPool(Config config) {
-        clientFactory = new DbClientFactory(config);
+    public DbClientPool(Config config, DbClientFactory dbClientFactory) {
         clientPool = new ConcurrentLinkedQueue<>();
 
         int numClients = 10;  // TODO: move to config
         for (int i = 0; i < numClients; i++) {
-            clientPool.offer(clientFactory.createDbClient());
+            clientPool.offer(dbClientFactory.createDbClient());
         }
     }
 

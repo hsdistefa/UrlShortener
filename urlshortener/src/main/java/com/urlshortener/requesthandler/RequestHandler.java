@@ -5,6 +5,7 @@ import static spark.Spark.post;
 import com.urlshortener.config.Config;
 import com.urlshortener.dataaccess.DataAccess;
 import com.urlshortener.dataaccess.model.UrlMappingData;
+import com.urlshortener.logging.AppLogger;
 import com.urlshortener.requesthandler.model.ShortenRequest;
 import com.urlshortener.requesthandler.model.ShortenResponse;
 import com.urlshortener.requesthandler.validation.AddressValidator;
@@ -25,19 +26,38 @@ import spark.Response;
  */
 public class RequestHandler {
 
-    private static final Config config = new Config();
+    private static final Config CONFIG = new Config();
+    private static final AppLogger LOG = new AppLogger(CONFIG);
 
     // array of request validators
     // will be executed in the order listed
-    private static final Validator[] validators = new Validator[] {
-        new AddressValidator(config),
-        new BlacklistValidator(config),
+    private static final Validator[] VALIDATORS = new Validator[] {
+        new AddressValidator(CONFIG),
+        new BlacklistValidator(CONFIG),
     };
 
     // access for cache / db
-    private static final DataAccess dataAccess = new DataAccess(config);
+    private static final DataAccess DATA_ACCESS = new DataAccess(CONFIG);
 
     public static void main(String[] args) {
+        final String METHOD_NAME = "main";
+
+        // setup code
+        LOG.doAssert(args != null, METHOD_NAME, "args should not be null");
+        LOG.doAssert(args.length == 1, METHOD_NAME, "incorrect number of args");
+        LOG.info(METHOD_NAME, "args", "firstTimeSetup", args[0]);
+
+        // bootstrap persistent store
+        if (Boolean.valueOf(args[0])) {
+            DATA_ACCESS.bootstrapPersistentStore();
+        } else {  // verify setup
+            DATA_ACCESS.verifyPersistentStore();
+        }
+
+        /**
+         * Takes a url and returns an alias url that will link back to
+         * the original url
+         */
         post("/shorten", (request, response) -> {
             try {
                 // unwrap the request
@@ -49,7 +69,7 @@ public class RequestHandler {
                 }
 
                 // validate the user request
-                for (Validator validator : validators) {
+                for (Validator validator : VALIDATORS) {
                     if (!validator.validate(shortenRequest)) {
                         String errorMessage = validator.getErrorMessage(shortenRequest);
                         // TODO - generate bad response
@@ -57,7 +77,7 @@ public class RequestHandler {
                 }
 
                 // check persistent store to see if an alias has already been created
-                UrlMappingData prevMapping = dataAccess.getMappingForOriginalUrl(
+                UrlMappingData prevMapping = DATA_ACCESS.getMappingForOriginalUrl(
                     shortenRequest.url);
                 if (prevMapping != null) {
                     return new ShortenResponse(prevMapping);
@@ -71,7 +91,7 @@ public class RequestHandler {
                                                                creationTime);
 
                 // store the new mapping in the db
-                dataAccess.createUrlMapping(newMapping);
+                DATA_ACCESS.createUrlMapping(newMapping);
 
                 // generate the successful response
                 response.status(200);
