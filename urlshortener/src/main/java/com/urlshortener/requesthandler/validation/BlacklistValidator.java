@@ -1,7 +1,7 @@
-package com.urlshortener.validation;
+package com.urlshortener.requesthandler.validation;
 
 import com.urlshortener.config.Config;
-import com.urlshortener.model.ShortenRequest;
+import com.urlshortener.requesthandler.model.ShortenRequest;
 
 
 /**

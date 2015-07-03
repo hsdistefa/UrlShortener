@@ -1,4 +1,4 @@
-package com.urlshortener.model;
+package com.urlshortener.requesthandler.model;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -12,14 +12,10 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  * Includes static serializer / deserializer
  */
 public class ShortenRequest {
-    private final String url;
+    public final String url;
 
     public ShortenRequest(String url) {
         this.url = url;
-    }
-
-    public String getUrl() {
-        return url;
     }
 
     public static String toJson(ShortenRequest request) {

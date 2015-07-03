@@ -3,11 +3,13 @@ package com.urlshortener.requesthandler;
 import static spark.Spark.post;
 
 import com.urlshortener.config.Config;
-import com.urlshortener.model.ShortenRequest;
-import com.urlshortener.model.ShortenResponse;
-import com.urlshortener.validation.AddressValidator;
-import com.urlshortener.validation.BlacklistValidator;
-import com.urlshortener.validation.Validator;
+import com.urlshortener.dataaccess.DataAccess;
+import com.urlshortener.dataaccess.model.UrlMappingData;
+import com.urlshortener.requesthandler.model.ShortenRequest;
+import com.urlshortener.requesthandler.model.ShortenResponse;
+import com.urlshortener.requesthandler.validation.AddressValidator;
+import com.urlshortener.requesthandler.validation.BlacklistValidator;
+import com.urlshortener.requesthandler.validation.Validator;
 
 import com.google.gson.JsonSyntaxException;
 
@@ -32,37 +34,54 @@ public class RequestHandler {
         new BlacklistValidator(config),
     };
 
+    // access for cache / db
+    private static final DataAccess dataAccess = new DataAccess(config);
+
     public static void main(String[] args) {
         post("/shorten", (request, response) -> {
-
-            // unwrap the request
-            ShortenRequest shortenRequest = null;
             try {
-                shortenRequest = ShortenRequest.fromJson(request.body());
-            } catch (JsonSyntaxException e) {
-                // TODO - generate bad response
-            }
-
-            // validation on the user request
-            for (Validator validator : validators) {
-                if (!validator.validate(shortenRequest)) {
-                    String errorMessage = validator.getErrorMessage(shortenRequest);
+                // unwrap the request
+                ShortenRequest shortenRequest = null;
+                try {
+                    shortenRequest = ShortenRequest.fromJson(request.body());
+                } catch (JsonSyntaxException e) {
                     // TODO - generate bad response
                 }
+
+                // validate the user request
+                for (Validator validator : validators) {
+                    if (!validator.validate(shortenRequest)) {
+                        String errorMessage = validator.getErrorMessage(shortenRequest);
+                        // TODO - generate bad response
+                    }
+                }
+
+                // check persistent store to see if an alias has already been created
+                UrlMappingData prevMapping = dataAccess.getMappingForOriginalUrl(
+                    shortenRequest.url);
+                if (prevMapping != null) {
+                    return new ShortenResponse(prevMapping);
+                }
+
+                // generate new mapping
+                String newAliasUrl = "http://dummy.com";  // TODO
+                long creationTime = System.currentTimeMillis() / 1000;
+                UrlMappingData newMapping = new UrlMappingData(shortenRequest.url,
+                                                               newAliasUrl,
+                                                               creationTime);
+
+                // store the new mapping in the db
+                dataAccess.createUrlMapping(newMapping);
+
+                // generate the successful response
+                response.status(200);
+                response.type("application/json");
+                ShortenResponse shortenResponse = new ShortenResponse(newMapping);
+                return ShortenResponse.toJson(shortenResponse);
+            } catch (Exception e) {
+                // TODO
+                throw new Exception();
             }
-
-            // TODO -
-            //   generate shortened url
-            //   query db
-            //   handle collisions
-            //   write to db
-
-            // generate the successful response
-            response.status(200);
-            response.type("application/json");
-            ShortenResponse shortenResponse = new ShortenResponse(shortenRequest.getUrl(),
-                                                                  "dummy_url");
-            return ShortenResponse.toJson(shortenResponse);
         });
     }
 }

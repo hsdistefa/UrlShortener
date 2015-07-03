@@ -1,4 +1,6 @@
-package com.urlshortener.model;
+package com.urlshortener.requesthandler.model;
+
+import com.urlshortener.dataaccess.model.UrlMappingData;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -12,20 +14,20 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  * Includes static serializer / deserializer
  */
 public class ShortenResponse {
-    private final String originalUrl;
-    private final String shortenedUrl;
+    public final String originalUrl;
+    public final String aliasUrl;
 
-    public ShortenResponse(String originalUrl, String shortenedUrl) {
+    public ShortenResponse(UrlMappingData urlMappingData) {
+        this.originalUrl = urlMappingData.originalUrl;
+        this.aliasUrl = urlMappingData.aliasUrl;
+    }
+
+    /**
+     * For unit testing
+     */
+    public ShortenResponse(String originalUrl, String aliasUrl) {
         this.originalUrl = originalUrl;
-        this.shortenedUrl = shortenedUrl;
-    }
-
-    public String getOriginalUrl() {
-        return originalUrl;
-    }
-
-    public String getShortenedUrl() {
-        return shortenedUrl;
+        this.aliasUrl = aliasUrl;
     }
 
     public static String toJson(ShortenResponse response) {
@@ -42,7 +44,7 @@ public class ShortenResponse {
     public String toString() {
         return new ToStringBuilder(this)
             .append("originalUrl", originalUrl)
-            .append("shortenedUrl", shortenedUrl)
+            .append("aliasUrl", aliasUrl)
             .toString();
     }
 
@@ -61,7 +63,7 @@ public class ShortenResponse {
         ShortenResponse other = (ShortenResponse) o;
         return new EqualsBuilder()
             .append(this.originalUrl, other.originalUrl)
-            .append(this.shortenedUrl, other.shortenedUrl)
+            .append(this.aliasUrl, other.aliasUrl)
             .isEquals();
     }
 
@@ -69,7 +71,7 @@ public class ShortenResponse {
     public int hashCode() {
         return new HashCodeBuilder(13, 41)
             .append(originalUrl)
-            .append(shortenedUrl)
+            .append(aliasUrl)
             .toHashCode();
     }
 }

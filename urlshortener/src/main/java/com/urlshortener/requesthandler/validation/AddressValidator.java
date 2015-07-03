@@ -1,10 +1,10 @@
-package com.urlshortener.validation;
+package com.urlshortener.requesthandler.validation;
 
 import org.apache.commons.validator.routines.UrlValidator;
 
 import com.urlshortener.config.Config;
 import com.urlshortener.logging.AppLogger;
-import com.urlshortener.model.ShortenRequest;
+import com.urlshortener.requesthandler.model.ShortenRequest;
 
 
 /**
@@ -35,7 +35,7 @@ public class AddressValidator extends Validator {
     @Override
     public boolean validate(ShortenRequest req) {
         logger.doAssert(req != null, "validate", "req should not be null");
-        return urlValidator.isValid(req.getUrl());
+        return urlValidator.isValid(req.url);
     }
 
     @Override

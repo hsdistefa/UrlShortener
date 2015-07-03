@@ -1,4 +1,4 @@
-package com.urlshortener.model;
+package com.urlshortener.requesthandler.model;
 
 import static org.junit.Assert.assertEquals;
 

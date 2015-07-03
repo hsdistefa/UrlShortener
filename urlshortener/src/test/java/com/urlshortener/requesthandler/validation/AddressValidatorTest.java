@@ -1,4 +1,4 @@
-package com.urlshortener.validation;
+package com.urlshortener.requesthandler.validation;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
@@ -6,7 +6,7 @@ import static org.junit.Assert.fail;
 
 import com.urlshortener.config.Config;
 import com.urlshortener.logging.AssertionException;
-import com.urlshortener.model.ShortenRequest;
+import com.urlshortener.requesthandler.model.ShortenRequest;
 
 import org.junit.Test;
 
@@ -110,13 +110,13 @@ public class AddressValidatorTest {
 
     private void validTestCaseHelper(ShortenRequest[] requests) {
         for (ShortenRequest request : requests) {
-            assertTrue("testing: " + request.getUrl(), addressValidator.validate(request));
+            assertTrue("testing: " + request.url, addressValidator.validate(request));
         }
     }
     
     private void invalidTestCaseHelper(ShortenRequest[] requests) {
         for (ShortenRequest request : requests) {
-            assertFalse("testing: " + request.getUrl(), addressValidator.validate(request));
+            assertFalse("testing: " + request.url, addressValidator.validate(request));
         }
     }
 
