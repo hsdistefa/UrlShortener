@@ -1,13 +1,13 @@
 TODO:
 * Implement hashing functions
-* Setup DynamoDB table
-* Hook up database to frontend
+* Setup DynamoDB table + access (budimana)
 * Url dispatch
-* full stack tests
+* Integration tests
+* Cluster tests
 
 LATER:
 * Implement domain restrictions
-* Setup config
+* Setup config override file
 * App logging
 * Service logging
 * Metrics
@@ -21,3 +21,5 @@ DONE:
 * Spark "hello world"
 * Get request / response API working with dummy values
 * Validate url format
+* Hook up database to frontend
+* Setup basic config
