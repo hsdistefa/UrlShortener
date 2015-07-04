@@ -3,6 +3,7 @@ package com.urlshortener.requesthandler.validation;
 import org.apache.commons.validator.routines.UrlValidator;
 
 import com.urlshortener.config.Config;
+import com.urlshortener.config.ConfigKey;
 import com.urlshortener.logging.AppLogger;
 import com.urlshortener.requesthandler.model.ShortenRequest;
 
@@ -20,11 +21,11 @@ public class AddressValidator extends Validator {
 
         log = new AppLogger(config);
 
-        // TODO: move to config
-        boolean allow2Slashes = true;
-        boolean allowAllSchemes = true;
-        boolean allowLocalUrls = true;
-        boolean noFragments = false;
+        // get options from config
+        boolean allow2Slashes = config.getBoolean(ConfigKey.Allow2Slashes);
+        boolean allowAllSchemes = config.getBoolean(ConfigKey.AllowAllSchemes);
+        boolean allowLocalUrls = config.getBoolean(ConfigKey.AllowLocalUrls);
+        boolean noFragments = config.getBoolean(ConfigKey.NoFragments);
 
         long options = (allow2Slashes ? UrlValidator.ALLOW_2_SLASHES : 0) +
                        (allowAllSchemes ? UrlValidator.ALLOW_ALL_SCHEMES : 0) +

@@ -11,24 +11,24 @@ public class AppLogger {
         this.config = config;
     }
 
-    public void fatal(String method, String message, String... info) {
+    public void fatal(String method, String message, Object... info) {
         // TODO
     }
 
-    public void error(String method, String message, String... info) {
+    public void error(String method, String message, Object... info) {
         // TODO
     }
 
-    public void warn(String method, String message, String... info) {
+    public void warn(String method, String message, Object... info) {
         // TODO
     }
 
-    public void info(String method, String message, String... info) {
+    public void info(String method, String message, Object... info) {
         // TODO
     }
 
     public void doAssert(boolean flag, String method, String message,
-            String... info) throws AssertionException {
+            Object... info) throws AssertionException {
 
         if (!flag) {
             fatal(method, message, info);
@@ -36,9 +36,14 @@ public class AppLogger {
         }
     }
 
+    public void doFail(String method, String message, Object... info)
+            throws AssertionException {
+        doAssert(false, method, message, info);
+    }
+
 
     public static String constructLog(String method, String message,
-            String... info) {
+            Object... info) {
 
         // construct error message
         StringBuilder sb = new StringBuilder()
@@ -49,7 +54,7 @@ public class AppLogger {
 
         if (info != null) {
             for (int i = 0; i < info.length; i++) {
-                sb.append(info[i]);
+                sb.append(info[i].toString());
                 if (i % 2 == 0) {
                     sb.append(": ");
                 } else {

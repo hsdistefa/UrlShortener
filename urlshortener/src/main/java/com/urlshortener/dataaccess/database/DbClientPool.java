@@ -4,7 +4,9 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.urlshortener.config.Config;
+import com.urlshortener.config.ConfigKey;
 import com.urlshortener.dataaccess.ClientPoolExhaustedException;
+import com.urlshortener.logging.AppLogger;
 
 
 /**
@@ -13,12 +15,19 @@ import com.urlshortener.dataaccess.ClientPoolExhaustedException;
  */
 public class DbClientPool {
 
+    private final Config config;
+    private final AppLogger log;
+
     private final ConcurrentLinkedQueue<DbClient> clientPool;
 
     public DbClientPool(Config config, DbClientFactory dbClientFactory) {
-        clientPool = new ConcurrentLinkedQueue<>();
+        this.config = config;
+        this.log = new AppLogger(config);
+        this.clientPool = new ConcurrentLinkedQueue<>();
 
-        int numClients = 10;  // TODO: move to config
+        int numClients = config.getInt(ConfigKey.NumDbClients);
+        log.doAssert(numClients > 0, "DbClientPool", "invalid number of clients",
+                     "numClients", numClients);
         for (int i = 0; i < numClients; i++) {
             clientPool.offer(dbClientFactory.createDbClient());
         }
