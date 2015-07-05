@@ -3,34 +3,49 @@ package com.urlshortener.config;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import com.urlshortener.logging.AssertionException;
+import com.urlshortener.AssertionException;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 
 public class ConfigTest {
 
+    private Config config;
+
+    @Before
+    public void setUp() {
+        config = new Config();
+    }
+
+    @After
+    public void tearDown() {
+        config = null;
+    }
+
     @Test
     public void testGetIntValid() {
-        Config config = new Config();
         int value = config.getInt(ConfigKey.NumDbClients);
     }
 
     @Test
+    public void testGetLongValid() {
+        long value = config.getLong(ConfigKey.MappingTableReads);
+    }
+
+    @Test
     public void testGetBooleanValid() {
-        Config config = new Config();
         boolean value = config.getBoolean(ConfigKey.Allow2Slashes);
     }
 
     @Test
     public void testGetStringValid() {
-        Config config = new Config();
         String value = config.getString(ConfigKey.Database);
     }
 
     @Test
     public void testUnitTestOverridesValid() {
-        Config config = new Config();
         int preValue = config.getInt(ConfigKey.NumDbClients);
 
         // create the override
@@ -45,7 +60,6 @@ public class ConfigTest {
 
     @Test
     public void testGetIntInvalid() {
-        Config config = new Config();
         try {
             int value = config.getInt(ConfigKey.Database);
             fail("should have thrown for an invalid int");
@@ -55,8 +69,17 @@ public class ConfigTest {
     }
 
     @Test
+    public void testGetLongInvalid() {
+        try {
+            long value = config.getLong(ConfigKey.Database);
+            fail("should have thrown for an invalid long");
+        } catch (AssertionException e) {
+            // expected
+        }
+    }
+
+    @Test
     public void testGetBooleanInvalid() {
-        Config config = new Config();
         try {
             boolean value = config.getBoolean(ConfigKey.Database);
             fail("should have thrown for an invalid boolean");
@@ -67,7 +90,6 @@ public class ConfigTest {
 
     @Test
     public void testNull() {
-        Config config = new Config();
 
         // int
         try {

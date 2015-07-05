@@ -1,10 +1,11 @@
 package com.urlshortener.requesthandler.validation;
 
+import static com.urlshortener.logging.AppLogger.doAssert;
+
 import org.apache.commons.validator.routines.UrlValidator;
 
 import com.urlshortener.config.Config;
 import com.urlshortener.config.ConfigKey;
-import com.urlshortener.logging.AppLogger;
 import com.urlshortener.requesthandler.model.ShortenRequest;
 
 
@@ -13,13 +14,10 @@ import com.urlshortener.requesthandler.model.ShortenRequest;
  */
 public class AddressValidator extends Validator {
 
-    private final AppLogger log;
     private final UrlValidator urlValidator;
 
     public AddressValidator(Config config) {
         super(config);
-
-        log = new AppLogger(config);
 
         // get options from config
         boolean allow2Slashes = config.getBoolean(ConfigKey.Allow2Slashes);
@@ -37,7 +35,7 @@ public class AddressValidator extends Validator {
 
     @Override
     public boolean validate(ShortenRequest req) {
-        log.doAssert(req != null, "validate", "req should not be null");
+        doAssert(req != null, "validate", "req should not be null");
         return urlValidator.isValid(req.url);
     }
 

@@ -12,6 +12,10 @@ public enum ConfigKey {
         // database configs
         Database("DynamoDB"),
         NumDbClients("10"),
+
+        // DynamoDb specific
+        MappingTableReads("10"),
+        MappingTableWrites("10"),
     
         // url validation
         Allow2Slashes("true"),

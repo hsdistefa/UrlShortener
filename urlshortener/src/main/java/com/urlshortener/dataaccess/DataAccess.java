@@ -1,5 +1,6 @@
 package com.urlshortener.dataaccess;
 
+import com.urlshortener.Stage;
 import com.urlshortener.config.Config;
 import com.urlshortener.dataaccess.database.DbClient;
 import com.urlshortener.dataaccess.database.DbClientFactory;
@@ -18,10 +19,12 @@ public class DataAccess {
     private final DbDDLClient dbDDLClient;
     private final DbClientPool dbClientPool;
 
-    public DataAccess(Config config) {
+    public DataAccess(Config config, Stage stage) {
         this.config = config;
 
-        DbClientFactory dbClientFactory = new DbClientFactory(config);
+        DbClientFactory dbClientFactory = DbClientFactory.createDbClientFactory(
+                                                              config,
+                                                              stage);
         this.dbDDLClient = dbClientFactory.createDDLClient();
         this.dbClientPool = new DbClientPool(config, dbClientFactory);
     }
@@ -78,5 +81,13 @@ public class DataAccess {
         } finally {
             dbClientPool.returnClient(client);
         }
+    }
+
+    /**
+     * Release all resources
+     */
+    public void close() {
+        dbDDLClient.close();
+        dbClientPool.close();
     }
 }

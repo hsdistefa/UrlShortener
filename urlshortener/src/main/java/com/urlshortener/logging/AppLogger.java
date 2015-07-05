@@ -1,33 +1,44 @@
 package com.urlshortener.logging;
 
+import com.urlshortener.AssertionException;
 import com.urlshortener.config.Config;
 
 
 public class AppLogger {
 
+    // all app logging requests go through this one instance
+    private static AppLogger log;
+
     private final Config config;
 
-    public AppLogger(Config config) {
+    private AppLogger(Config config) {
         this.config = config;
     }
 
-    public void fatal(String method, String message, Object... info) {
+    /**
+     * This must be called before any logging can be done
+     */
+    public static void initialize(Config config) {
+        log = new AppLogger(config);
+    }
+
+    public static void fatal(String method, String message, Object... info) {
         // TODO
     }
 
-    public void error(String method, String message, Object... info) {
+    public static void error(String method, String message, Object... info) {
         // TODO
     }
 
-    public void warn(String method, String message, Object... info) {
+    public static void warn(String method, String message, Object... info) {
         // TODO
     }
 
-    public void info(String method, String message, Object... info) {
+    public static void info(String method, String message, Object... info) {
         // TODO
     }
 
-    public void doAssert(boolean flag, String method, String message,
+    public static void doAssert(boolean flag, String method, String message,
             Object... info) throws AssertionException {
 
         if (!flag) {
@@ -36,7 +47,7 @@ public class AppLogger {
         }
     }
 
-    public void doFail(String method, String message, Object... info)
+    public static void doFail(String method, String message, Object... info)
             throws AssertionException {
         doAssert(false, method, message, info);
     }

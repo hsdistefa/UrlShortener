@@ -1,4 +1,4 @@
-package com.urlshortener.logging;
+package com.urlshortener;
 
 
 /**

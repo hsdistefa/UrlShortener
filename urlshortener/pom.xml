@@ -78,6 +78,9 @@
             <configuration>
               <port>${dynamodblocal.port}</port>
               <dist>${project.build.directory}/dynamodb-dist</dist>
+              <arguments>
+                <argument>-inMemory</argument>
+              </arguments>
             </configuration>
           </execution>
         </executions>

@@ -1,7 +1,12 @@
 package com.urlshortener.requesthandler;
 
+import static com.urlshortener.logging.AppLogger.doAssert;
+import static com.urlshortener.logging.AppLogger.doFail;
+import static com.urlshortener.logging.AppLogger.info;
+
 import static spark.Spark.post;
 
+import com.urlshortener.Stage;
 import com.urlshortener.config.Config;
 import com.urlshortener.dataaccess.DataAccess;
 import com.urlshortener.dataaccess.model.UrlMappingData;
@@ -27,7 +32,9 @@ import spark.Response;
 public class RequestHandler {
 
     private static final Config CONFIG = new Config();
-    private static final AppLogger LOG = new AppLogger(CONFIG);
+    static {
+        AppLogger.initialize(CONFIG);
+    }
 
     // array of request validators
     // will be executed in the order listed
@@ -37,22 +44,28 @@ public class RequestHandler {
     };
 
     // access for cache / db
-    private static final DataAccess DATA_ACCESS = new DataAccess(CONFIG);
+    private static DataAccess DATA_ACCESS;
 
     public static void main(String[] args) {
         final String METHOD_NAME = "main";
 
-        // setup code
-        LOG.doAssert(args != null, METHOD_NAME, "args should not be null");
-        LOG.doAssert(args.length == 1, METHOD_NAME, "incorrect number of args");
-        LOG.info(METHOD_NAME, "args", "firstTimeSetup", args[0]);
+        // input validation
+        doAssert(args != null, METHOD_NAME, "args should not be null");
+        doAssert(args.length == 1, METHOD_NAME, "incorrect number of args");
 
-        // bootstrap persistent store
-        if (Boolean.valueOf(args[0])) {
-            DATA_ACCESS.bootstrapPersistentStore();
-        } else {  // verify setup
-            DATA_ACCESS.verifyPersistentStore();
+        // stage
+        String stageArg = args[0];
+        Stage stage = null;
+        try {
+            stage = Stage.valueOf(stageArg);
+        } catch (IllegalArgumentException e) {
+            doFail(METHOD_NAME, "invalid stage", "stage", stageArg);
         }
+        info(METHOD_NAME, "stage found", "stage", stage);
+
+        // verify data access is properly bootstrapped
+        DATA_ACCESS = new DataAccess(CONFIG, stage);
+        DATA_ACCESS.verifyPersistentStore();
 
         /**
          * Takes a url and returns an alias url that will link back to

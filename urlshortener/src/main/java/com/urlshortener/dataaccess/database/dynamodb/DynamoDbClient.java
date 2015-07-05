@@ -1,17 +1,21 @@
 package com.urlshortener.dataaccess.database.dynamodb;
 
-import com.urlshortener.config.Config;
 import com.urlshortener.dataaccess.database.DbClient;
 import com.urlshortener.dataaccess.model.UrlMappingData;
+
+import com.amazonaws.services.dynamodbv2.document.DynamoDB;
+import com.amazonaws.services.dynamodbv2.document.Table;
 
 
 /**
  * DynamoDB implementation for data access operations
  */
-public class DynamoDbClient extends DbClient {
+public class DynamoDbClient implements DbClient {
 
-    public DynamoDbClient(Config config) {
-        super(config);
+    private final Table mappingTable;
+
+    public DynamoDbClient(DynamoDB dynamoDb) {
+        mappingTable = dynamoDb.getTable(DynamoDbConstants.MAPPING_TABLE_NAME);
     }
 
     /**
@@ -39,5 +43,13 @@ public class DynamoDbClient extends DbClient {
     public UrlMappingData getMappingForAliasUrl(String aliasUrl) {
         // TODO
         return null;
+    }
+
+    /**
+     * Release all resources
+     */
+    @Override
+    public void close() {
+        // TODO
     }
 }

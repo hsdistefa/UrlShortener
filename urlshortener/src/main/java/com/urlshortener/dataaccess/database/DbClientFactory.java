@@ -1,42 +1,37 @@
 package com.urlshortener.dataaccess.database;
 
+import static com.urlshortener.logging.AppLogger.doAssert;
+
+import com.urlshortener.Stage;
 import com.urlshortener.config.Config;
 import com.urlshortener.config.ConfigKey;
-import com.urlshortener.dataaccess.database.dynamodb.DDLDynamoDbClient;
-import com.urlshortener.dataaccess.database.dynamodb.DynamoDbClient;
-import com.urlshortener.logging.AppLogger;
+import com.urlshortener.dataaccess.database.dynamodb.DynamoDbClientFactory;
 
 
 /**
  * Factory creates clients based on the specific persistent store
  */
-public class DbClientFactory {
+public abstract class DbClientFactory {
 
+    // valid databases (only DynamoDb right now)
     public static final String DYNAMODB = "DynamoDB";
 
-    private final Config config;
-    private final AppLogger log;
+    protected final Config config;
 
     public DbClientFactory(Config config) {
         this.config = config;
-        this.log = new AppLogger(config);
     }
 
-    public DbDDLClient createDDLClient() {
+    public abstract DbDDLClient createDDLClient();
+
+    public abstract DbClient createDbClient();
+
+    public static DbClientFactory createDbClientFactory(Config config, Stage stage) {
         String database = config.getString(ConfigKey.Database);
 
-        // change if we have more databases
-        log.doAssert(database.equals(DYNAMODB), "createDDLClient",
-                     "unknown database", "database", database);
-        return new DDLDynamoDbClient(config);
-    }
-
-    public DbClient createDbClient() {
-        String database = config.getString(ConfigKey.Database);
-
-        // change if we have more databases
-        log.doAssert(database.equals(DYNAMODB), "createDbClient",
-                     "unknown database", "database", database);
-        return new DynamoDbClient(config);
+        // for now, we only have DynamoDb
+        doAssert(database.equals(DYNAMODB), "createDbCLientFactory",
+                 "invalid database", "database", database);
+        return new DynamoDbClientFactory(config, stage);
     }
 }

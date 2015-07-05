@@ -4,8 +4,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
+import com.urlshortener.AssertionException;
 import com.urlshortener.config.Config;
-import com.urlshortener.logging.AssertionException;
 import com.urlshortener.requesthandler.model.ShortenRequest;
 
 import org.junit.Test;

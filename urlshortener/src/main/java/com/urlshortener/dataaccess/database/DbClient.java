@@ -1,19 +1,12 @@
 package com.urlshortener.dataaccess.database;
 
-import com.urlshortener.config.Config;
 import com.urlshortener.dataaccess.model.UrlMappingData;
 
 
 /**
  * Class that defines data access operations
  */
-public abstract class DbClient {
-
-    private final Config config;
-
-    public DbClient(Config config) {
-        this.config = config;
-    }
+public interface DbClient {
 
     /**
      * Stores an (alias url -> original url) mapping
@@ -30,4 +23,9 @@ public abstract class DbClient {
      * Given an alias url, retrieve mapping data
      */
     public abstract UrlMappingData getMappingForAliasUrl(String aliasUrl);
+
+    /**
+     * Releases all resources
+     */
+    public abstract void close();
 }

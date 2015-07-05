@@ -1,12 +1,14 @@
 package com.urlshortener.dataaccess.database;
 
+import static com.urlshortener.logging.AppLogger.doAssert;
+import static com.urlshortener.logging.AppLogger.info;
+
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.urlshortener.config.Config;
 import com.urlshortener.config.ConfigKey;
 import com.urlshortener.dataaccess.ClientPoolExhaustedException;
-import com.urlshortener.logging.AppLogger;
 
 
 /**
@@ -15,18 +17,17 @@ import com.urlshortener.logging.AppLogger;
  */
 public class DbClientPool {
 
-    private final Config config;
-    private final AppLogger log;
+    private volatile boolean isShutdown = false;
 
+    private final Config config;
     private final ConcurrentLinkedQueue<DbClient> clientPool;
 
     public DbClientPool(Config config, DbClientFactory dbClientFactory) {
         this.config = config;
-        this.log = new AppLogger(config);
         this.clientPool = new ConcurrentLinkedQueue<>();
 
         int numClients = config.getInt(ConfigKey.NumDbClients);
-        log.doAssert(numClients > 0, "DbClientPool", "invalid number of clients",
+        doAssert(numClients > 0, "DbClientPool", "invalid number of clients",
                      "numClients", numClients);
         for (int i = 0; i < numClients; i++) {
             clientPool.offer(dbClientFactory.createDbClient());
@@ -53,6 +54,25 @@ public class DbClientPool {
      * Returns a db client to the pool
      */
     public void returnClient(DbClient client) {
-        clientPool.offer(client);
+        if (isShutdown) {
+            client.close();
+        } else {
+            clientPool.offer(client);
+        }
+    }
+
+    /**
+     * Releases all resources
+     */
+    public void close() {
+        info("close", "closing DbClientPool");
+        isShutdown = true;
+        try {
+            while (true) {
+                clientPool.remove().close();
+            }
+        } catch (NoSuchElementException e) {
+            // expected
+        }
     }
 }
