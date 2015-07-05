@@ -16,6 +16,8 @@ public enum ConfigKey {
         // DynamoDb specific
         MappingTableReads("10"),
         MappingTableWrites("10"),
+        MappingGSIReads("10"),
+        MappingGSIWrites("10"),
     
         // url validation
         Allow2Slashes("true"),

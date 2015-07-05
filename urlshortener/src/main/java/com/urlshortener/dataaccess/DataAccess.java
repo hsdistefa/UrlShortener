@@ -84,6 +84,23 @@ public class DataAccess {
     }
 
     /**
+     * Given an alias url, retrieve mapping data
+     */
+    public UrlMappingData getMappingForAliasUrl(String aliasUrl)
+            throws ClientPoolExhaustedException {
+
+        // TODO: check the cache for entry
+
+        // check the db for entry
+        DbClient client = dbClientPool.getClient();
+        try {
+            return client.getMappingForAliasUrl(aliasUrl);
+        } finally {
+            dbClientPool.returnClient(client);
+        }
+    }
+
+    /**
      * Release all resources
      */
     public void close() {

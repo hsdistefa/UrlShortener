@@ -1,8 +1,8 @@
-Build
+Compile
+* 'mvn compile'
+
+Run unit tests
 * 'mvn package'
 
-
-Hello world
-* build
-* execute 'bin/runHelloWorldServer'
-* in another terminal, execute 'bin/runHellowWorldClient'
+Run integration tests
+* 'mvn verify'
