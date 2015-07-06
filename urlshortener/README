@@ -5,4 +5,4 @@ Run unit tests
 * 'mvn package'
 
 Run integration tests
-* 'mvn verify'
+* 'mvn verify' asdf
