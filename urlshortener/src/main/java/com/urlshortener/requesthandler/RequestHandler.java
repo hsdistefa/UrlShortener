@@ -16,11 +16,15 @@ import com.urlshortener.requesthandler.model.ShortenResponse;
 import com.urlshortener.requesthandler.validation.AddressValidator;
 import com.urlshortener.requesthandler.validation.BlacklistValidator;
 import com.urlshortener.requesthandler.validation.Validator;
+import com.urlshortener.urlaliasing.UrlAliaser;
 
 import com.google.gson.JsonSyntaxException;
 
 import spark.Request;
 import spark.Response;
+
+import org.apache.commons.codec.binary.Base64;
+import java.nio.ByteBuffer;
 
 
 /**
@@ -96,8 +100,32 @@ public class RequestHandler {
                     return new ShortenResponse(prevMapping);
                 }
 
+                // create new url alias
+                UrlAliaser aliaser = new UrlAliaser();
+                String newAliasUrl = aliaser.getAlias(shortenRequest.url);
+
+                // check for hash collision
+                UrlMappingData prevHash = DATA_ACCESS.getMappingForAliasUrl(newAliasUrl);
+                // TODO make this better
+                if (prevHash != null) {
+                    // linearly probe for open hash
+                    boolean urlSafe = true;
+                    Base64 encoder = new Base64(urlSafe);
+                    Long aliasDec; // TODO larger storage?
+                    while (prevHash != null) {
+                        // increment newAliasUrl
+                        byte[] aliasBytes = encoder.decodeBase64(newAliasUrl);
+                        aliasDec = ByteBuffer.wrap(aliasBytes).getLong() + 1;
+                        newAliasUrl = encoder.encodeBase64URLSafeString(
+                                ByteBuffer.allocate(Long.SIZE).
+                                putLong(aliasDec).array());
+
+                        prevHash = DATA_ACCESS.getMappingForAliasUrl(newAliasUrl);
+                    }
+                }
+
+
                 // generate new mapping
-                String newAliasUrl = "http://dummy.com";  // TODO
                 long creationTime = System.currentTimeMillis() / 1000;
                 UrlMappingData newMapping = new UrlMappingData(shortenRequest.url,
                                                                newAliasUrl,

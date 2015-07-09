@@ -8,7 +8,7 @@ public enum ConfigKey {
         // logging
         AppLogName("app_log"),  // TODO
         ServiceLogName("service_log"),  // TODO
-    
+
         // database configs
         Database("DynamoDB"),
         NumDbClients("10"),
@@ -18,12 +18,16 @@ public enum ConfigKey {
         MappingTableWrites("10"),
         MappingGSIReads("10"),
         MappingGSIWrites("10"),
-    
+
         // url validation
         Allow2Slashes("true"),
         AllowAllSchemes("true"),
         AllowLocalUrls("true"),
         NoFragments("false"),
+
+        // aliasing
+        Algorithm("MD5"),
+        HashLength("6"),
     ;
 
     private final String value;
