@@ -101,7 +101,7 @@ public class RequestHandler {
                 }
 
                 // create new url alias
-                UrlAliaser aliaser = new UrlAliaser();
+                UrlAliaser aliaser = new UrlAliaser(CONFIG);
                 String newAliasUrl = aliaser.getAlias(shortenRequest.url);
 
                 // check for hash collision
