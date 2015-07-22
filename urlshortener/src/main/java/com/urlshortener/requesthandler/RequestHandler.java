@@ -104,15 +104,16 @@ public class RequestHandler {
                 UrlAliaser aliaser = new UrlAliaser(CONFIG);
                 String newAliasUrl = aliaser.getAlias(shortenRequest.url);
 
-                // check for hash collision
-                UrlMappingData prevHash = DATA_ACCESS.getMappingForAliasUrl(newAliasUrl);
+                // check for alias (hash) collision
+                UrlMappingData prevAlias = DATA_ACCESS.getMappingForAliasUrl(newAliasUrl);
                 // TODO make this better
-                if (prevHash != null) {
+                // TODO: write test for hash collision handling
+                if (prevAlias != null) {
                     // linearly probe for open hash
                     boolean urlSafe = true;
                     Base64 encoder = new Base64(urlSafe);
                     Long aliasDec; // TODO larger storage?
-                    while (prevHash != null) {
+                    while (prevAlias != null) {
                         // increment newAliasUrl
                         byte[] aliasBytes = encoder.decodeBase64(newAliasUrl);
                         aliasDec = ByteBuffer.wrap(aliasBytes).getLong() + 1;
@@ -120,7 +121,7 @@ public class RequestHandler {
                                 ByteBuffer.allocate(Long.SIZE).
                                 putLong(aliasDec).array());
 
-                        prevHash = DATA_ACCESS.getMappingForAliasUrl(newAliasUrl);
+                        prevAlias = DATA_ACCESS.getMappingForAliasUrl(newAliasUrl);
                     }
                 }
 

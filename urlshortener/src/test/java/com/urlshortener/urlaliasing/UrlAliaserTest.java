@@ -18,9 +18,9 @@ public class UrlAliaserTest {
     // TODO anything else we can test
 
     private UrlAliaser aliaser;
-    private Config     config;
+    private Config config;
 
-    private final String URL = "http://google.com";
+    private static final String URL = "http://google.com";
 
     @Before
     public void setUp() {
@@ -33,18 +33,44 @@ public class UrlAliaserTest {
         aliaser = null;
     }
 
-    // test hash lengths
-    private final String[] invalidLTOneHashLengths = new String[] {
-        "0", "-1", "-27", "-1000", String.valueOf(Integer.MIN_VALUE),
+    // test invalid
+    private static final String[] invalidLTOneAliasLengths = new String[] {
+        "0",
+        "-1",
+        "-27",
+        "-1000",
+        String.valueOf(Integer.MIN_VALUE),
     };
 
-    private final String[] invalidGT16HashLengths = new String[] {
-        "17", "18", "23", "1000", String.valueOf(Integer.MAX_VALUE),
+    private static final String[] invalidGT16AliasLengths = new String[] {
+        "17",
+        "18",
+        "23",
+        "1000",
+        String.valueOf(Integer.MAX_VALUE),
     };
 
-    private void invalidHashLengthHelper(String length) {
+    private static final String[] validHashAlgorithms = new String[] {
+        "MD2",
+        "MD5",
+        "SHA-1",
+        "SHA-256",
+        "SHA-384",
+        "SHA-512",
+    };
+
+    private static final String[] invalidHashAlgorithms = new String[] {
+        "MD2 ",
+        "MD-5",
+        "SHA1",
+        "SHA-25",
+        "sha-384",
+        "SHA-512a",
+    };
+
+    private void invalidAliasLengthHelper(String length) {
         try {
-            config.setUnitTestOverride(ConfigKey.HashLength, length);
+            config.setUnitTestOverride(ConfigKey.AliasLength, length);
             aliaser = new UrlAliaser(config);
             fail("should have thrown for invalid hash length");
         }
@@ -54,28 +80,56 @@ public class UrlAliaserTest {
     }
 
     @Test
-    public void testHashLengthLTOneInvalid() {
-        for (String hashLength : invalidLTOneHashLengths) {
-            invalidHashLengthHelper(hashLength);
+    public void testAliasLengthLTOneInvalid() {
+        for (String aliasLength : invalidLTOneAliasLengths) {
+            invalidAliasLengthHelper(aliasLength);
         }
     }
 
     @Test
-    public void testHashLengthValid() {
+    public void testAliasLengthGT16Invalid() {
+        for (String aliasLength : invalidGT16AliasLengths) {
+            invalidAliasLengthHelper(aliasLength);
+        }
+    }
+
+    @Test
+    public void testHashAlgorithmInvalid() {
+        for (String alg : invalidHashAlgorithms) {
+            config.setUnitTestOverride(ConfigKey.Algorithm,
+                                       alg);
+            try {
+                aliaser = new UrlAliaser(config);
+                fail("should have thrown for invalid hash algorithm");
+            } catch (AssertionException e) {
+                // expected
+            }
+        }
+    }
+
+    // test valid
+    @Test
+    public void testHashAlgorithmValid() {
+        for (String alg : validHashAlgorithms) {
+            config.setUnitTestOverride(ConfigKey.Algorithm,
+                                       alg);
+            try {
+                aliaser = new UrlAliaser(config);
+            } catch (AssertionException e) {
+                fail("should not have thrown for valid hash algorithm");
+            }
+        }
+    }
+
+    @Test
+    public void testAliasLengthValid() {
         String hash;
         for (int i=1; i <= 16; i++) {
-            config.setUnitTestOverride(ConfigKey.HashLength,
+            config.setUnitTestOverride(ConfigKey.AliasLength,
                                        String.valueOf(i));
             aliaser = new UrlAliaser(config);
             hash = aliaser.getAlias(URL);
             assertEquals(hash.length(), i);
-        }
-    }
-
-    @Test
-    public void testHashLengthGT16Invalid() {
-        for (String hashLength : invalidGT16HashLengths) {
-            invalidHashLengthHelper(hashLength);
         }
     }
 

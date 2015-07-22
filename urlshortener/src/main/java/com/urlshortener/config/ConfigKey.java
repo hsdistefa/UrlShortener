@@ -27,7 +27,7 @@ public enum ConfigKey {
 
         // aliasing
         Algorithm("MD5"),
-        HashLength("6"),
+        AliasLength("6"),
     ;
 
     private final String value;
