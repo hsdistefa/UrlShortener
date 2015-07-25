@@ -15,21 +15,14 @@ public class UrlAliaser {
     /**
      * Returns a hashed alias of the url encoded in url-safe base64
      */
-    private final HashAlgorithm alg;
     private final int aliasLength;
+    private final String alg;
 
     // constructor
     public UrlAliaser(Config config) {
         final String METHOD_NAME = "UrlAliaser constructor";
 
-        HashAlgorithm configAlg = null;
-        String configAlgString = config.getString(ConfigKey.Algorithm);
-        try {
-            configAlg = HashAlgorithm.getEnum(configAlgString);
-        } catch (IllegalArgumentException e) {
-            doFail(METHOD_NAME, "no such algorithm", configAlgString);
-        }
-        this.alg = configAlg;
+        this.alg = config.getString(ConfigKey.Algorithm);
         this.aliasLength = config.getInt(ConfigKey.AliasLength);
 
         // validate

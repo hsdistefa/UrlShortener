@@ -50,24 +50,6 @@ public class UrlAliaserTest {
         String.valueOf(Integer.MAX_VALUE),
     };
 
-    private static final String[] validHashAlgorithms = new String[] {
-        "MD2",
-        "MD5",
-        "SHA-1",
-        "SHA-256",
-        "SHA-384",
-        "SHA-512",
-    };
-
-    private static final String[] invalidHashAlgorithms = new String[] {
-        "MD2 ",
-        "MD-5",
-        "SHA1",
-        "SHA-25",
-        "sha-384",
-        "SHA-512a",
-    };
-
     private void invalidAliasLengthHelper(String length) {
         try {
             config.setUnitTestOverride(ConfigKey.AliasLength, length);
@@ -93,34 +75,7 @@ public class UrlAliaserTest {
         }
     }
 
-    @Test
-    public void testHashAlgorithmInvalid() {
-        for (String alg : invalidHashAlgorithms) {
-            config.setUnitTestOverride(ConfigKey.Algorithm,
-                                       alg);
-            try {
-                aliaser = new UrlAliaser(config);
-                fail("should have thrown for invalid hash algorithm");
-            } catch (AssertionException e) {
-                // expected
-            }
-        }
-    }
-
     // test valid
-    @Test
-    public void testHashAlgorithmValid() {
-        for (String alg : validHashAlgorithms) {
-            config.setUnitTestOverride(ConfigKey.Algorithm,
-                                       alg);
-            try {
-                aliaser = new UrlAliaser(config);
-            } catch (AssertionException e) {
-                fail("should not have thrown for valid hash algorithm");
-            }
-        }
-    }
-
     @Test
     public void testAliasLengthValid() {
         String hash;
