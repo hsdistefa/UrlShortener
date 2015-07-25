@@ -97,7 +97,6 @@ public class DataAccess {
             return client.getMappingForAliasUrl(aliasUrl);
         } finally {
             dbClientPool.returnClient(client);
-            return null;
         }
     }
 

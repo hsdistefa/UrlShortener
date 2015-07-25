@@ -147,18 +147,22 @@ public class RequestHandler {
                 throw new Exception();
             }
         });
+
+        /**
+         * harison TODO: put some comments bro and fix yoru name spelling
+         */
         get("/*", (request, response) -> {
             // TODO remember to test /shorten
 
             try {
                 // retrieve url mapping for alias
                 UrlMappingData prevMapping = DATA_ACCESS.getMappingForAliasUrl(
-                        request.splat()[0]
-                    );
+                        request.splat()[0]);
 
                 // handle alias not found
                 if (prevMapping == null) {
                     // TODO - generate bad response
+                    return "nothing";
                 }
 
                 // redirect to mapped url (success)
