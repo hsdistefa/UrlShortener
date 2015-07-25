@@ -14,10 +14,10 @@ public enum ConfigKey {
         NumDbClients("10"),
 
         // DynamoDb specific
-        MappingTableReads("10"),
-        MappingTableWrites("10"),
-        MappingGSIReads("10"),
-        MappingGSIWrites("10"),
+        DataTableReads("10"),
+        DataTableWrites("10"),
+        DataGSIReads("10"),
+        DataGSIWrites("10"),
 
         // url validation
         Allow2Slashes("true"),

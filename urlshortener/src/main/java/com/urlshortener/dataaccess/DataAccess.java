@@ -2,10 +2,10 @@ package com.urlshortener.dataaccess;
 
 import com.urlshortener.Stage;
 import com.urlshortener.config.Config;
-import com.urlshortener.dataaccess.database.DbClient;
-import com.urlshortener.dataaccess.database.DbClientFactory;
-import com.urlshortener.dataaccess.database.DbClientPool;
-import com.urlshortener.dataaccess.database.DbDDLClient;
+import com.urlshortener.dataaccess.database.DatabaseClientFactory;
+import com.urlshortener.dataaccess.database.DatabaseDdlClient;
+import com.urlshortener.dataaccess.database.DatabaseDmlClient;
+import com.urlshortener.dataaccess.database.DatabaseDmlClientPool;
 import com.urlshortener.dataaccess.model.UrlMappingData;
 
 
@@ -16,17 +16,16 @@ public class DataAccess {
 
     private final Config config;
 
-    private final DbDDLClient dbDDLClient;
-    private final DbClientPool dbClientPool;
+    private final DatabaseDdlClient databaseDdlClient;
+    private final DatabaseDmlClientPool databaseDmlClientPool;
 
     public DataAccess(Config config, Stage stage) {
         this.config = config;
 
-        DbClientFactory dbClientFactory = DbClientFactory.createDbClientFactory(
-                                                              config,
-                                                              stage);
-        this.dbDDLClient = dbClientFactory.createDDLClient();
-        this.dbClientPool = new DbClientPool(config, dbClientFactory);
+        DatabaseClientFactory dbFactory = DatabaseClientFactory.create(config,
+                                                                       stage);
+        this.databaseDdlClient = dbFactory.createDdlClient();
+        this.databaseDmlClientPool = new DatabaseDmlClientPool(config, dbFactory);
     }
 
     /**
@@ -38,7 +37,7 @@ public class DataAccess {
         // TODO: bootstrap cache
 
         // bootstrap database tables
-        dbDDLClient.bootstrapTables();
+        databaseDdlClient.bootstrapTables();
     }
 
     /**
@@ -49,7 +48,7 @@ public class DataAccess {
         // TODO: verify cache
 
         // verify database tables
-        dbDDLClient.verifyTables();
+        databaseDdlClient.verifyTables();
     }
 
     /**
@@ -58,11 +57,11 @@ public class DataAccess {
     public void createUrlMapping(UrlMappingData data) {
 
         // go straight to the db
-        DbClient client = dbClientPool.getClient();
+        DatabaseDmlClient client = databaseDmlClientPool.getClient();
         try {
             client.createUrlMapping(data);
         } finally {
-            dbClientPool.returnClient(client);
+            databaseDmlClientPool.returnClient(client);
         }
     }
 
@@ -75,11 +74,11 @@ public class DataAccess {
         // TODO: check the cache for entry
 
         // check the db for entry
-        DbClient client = dbClientPool.getClient();
+        DatabaseDmlClient client = databaseDmlClientPool.getClient();
         try {
             return client.getMappingForOriginalUrl(originalUrl);
         } finally {
-            dbClientPool.returnClient(client);
+            databaseDmlClientPool.returnClient(client);
         }
     }
 
@@ -92,11 +91,11 @@ public class DataAccess {
         // TODO: check the cache for entry
 
         // check the db for entry
-        DbClient client = dbClientPool.getClient();
+        DatabaseDmlClient client = databaseDmlClientPool.getClient();
         try {
             return client.getMappingForAliasUrl(aliasUrl);
         } finally {
-            dbClientPool.returnClient(client);
+            databaseDmlClientPool.returnClient(client);
         }
     }
 
@@ -104,7 +103,7 @@ public class DataAccess {
      * Release all resources
      */
     public void close() {
-        dbDDLClient.close();
-        dbClientPool.close();
+        databaseDdlClient.close();
+        databaseDmlClientPool.close();
     }
 }

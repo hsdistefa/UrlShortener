@@ -31,7 +31,7 @@ public class ConfigTest {
 
     @Test
     public void testGetLongValid() {
-        long value = config.getLong(ConfigKey.MappingTableReads);
+        long value = config.getLong(ConfigKey.DataTableReads);
     }
 
     @Test

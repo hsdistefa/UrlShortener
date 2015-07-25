@@ -8,7 +8,7 @@ import java.util.List;
 
 import com.urlshortener.config.Config;
 import com.urlshortener.config.ConfigKey;
-import com.urlshortener.dataaccess.database.DbDDLClient;
+import com.urlshortener.dataaccess.database.DatabaseDdlClient;
 
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Table;
@@ -28,28 +28,28 @@ import com.amazonaws.services.dynamodbv2.model.TableDescription;
 /**
  * DynamoDB implementation for DDL operations
  */
-public class DDLDynamoDbClient implements DbDDLClient {
+public class DynamoDdlClient implements DatabaseDdlClient {
 
     private final Config config;
     private final DynamoDB dynamoDb;
 
-    private Table mappingTable;
+    private Table dataTable;
 
     private final ProvisionedThroughput baseThroughput;
     private final ProvisionedThroughput gsiThroughput;
 
-    public DDLDynamoDbClient(Config config, DynamoDB dynamoDb) {
+    public DynamoDdlClient(Config config, DynamoDB dynamoDb) {
         this.config = config;
         this.dynamoDb = dynamoDb;
-        this.mappingTable = dynamoDb.getTable(DynamoDbConstants.MAPPING_TABLE_NAME);
+        this.dataTable = dynamoDb.getTable(DynamoConstants.DATA_TABLE_NAME);
 
         // initialize throughput based on config
         this.baseThroughput = new ProvisionedThroughput(
-            config.getLong(ConfigKey.MappingTableReads),
-            config.getLong(ConfigKey.MappingTableWrites));
+            config.getLong(ConfigKey.DataTableReads),
+            config.getLong(ConfigKey.DataTableWrites));
         this.gsiThroughput = new ProvisionedThroughput(
-            config.getLong(ConfigKey.MappingGSIReads),
-            config.getLong(ConfigKey.MappingGSIWrites));
+            config.getLong(ConfigKey.DataGSIReads),
+            config.getLong(ConfigKey.DataGSIWrites));
     }
 
     /**
@@ -63,7 +63,7 @@ public class DDLDynamoDbClient implements DbDDLClient {
         // ensure table does not exist yet
         // TODO: timeout?
         try {
-            TableDescription td = mappingTable.waitForActiveOrDelete();
+            TableDescription td = dataTable.waitForActiveOrDelete();
             doAssert(td == null, METHOD_NAME, "table should not exist",
                      "tableDescription", td);
         } catch (InterruptedException e) {
@@ -72,16 +72,16 @@ public class DDLDynamoDbClient implements DbDDLClient {
         }
 
         // create the table
-        CreateTableRequest createRequest = newCreateMappingTableRequest(
+        CreateTableRequest createRequest = newCreateDataTableRequest(
                                                baseThroughput,
                                                gsiThroughput);
         info(METHOD_NAME, "creating table", "request", createRequest);
-        mappingTable = dynamoDb.createTable(createRequest);
+        dataTable = dynamoDb.createTable(createRequest);
 
         // wait for creation
         // TODO: timeout?
         try {
-            TableDescription td = mappingTable.waitForActive();
+            TableDescription td = dataTable.waitForActive();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             doFail(METHOD_NAME, "got interrupted getting table status");
@@ -92,32 +92,32 @@ public class DDLDynamoDbClient implements DbDDLClient {
     /**
      * Constructs a CreateTableRequest with the given parameters
      */
-    private CreateTableRequest newCreateMappingTableRequest(
+    private CreateTableRequest newCreateDataTableRequest(
             ProvisionedThroughput baseThroughput,
             ProvisionedThroughput gsiThroughput) {
 
         CreateTableRequest req = new CreateTableRequest()
-            .withTableName(DynamoDbConstants.MAPPING_TABLE_NAME)
+            .withTableName(DynamoConstants.DATA_TABLE_NAME)
             .withAttributeDefinitions(
                 new AttributeDefinition(
-                    DynamoDbConstants.MAPPING_HASH_KEY_NAME,
-                    DynamoDbConstants.MAPPING_HASH_KEY_TYPE),
+                    DynamoConstants.DATA_HASH_KEY,
+                    DynamoConstants.DATA_HASH_KEY_TYPE),
                 new AttributeDefinition(
-                    DynamoDbConstants.MAPPING_GSI_KEY_NAME,
-                    DynamoDbConstants.MAPPING_GSI_KEY_TYPE))
+                    DynamoConstants.DATA_GSI_KEY,
+                    DynamoConstants.DATA_GSI_KEY_TYPE))
             .withKeySchema(
                 new KeySchemaElement(
-                    DynamoDbConstants.MAPPING_HASH_KEY_NAME,
+                    DynamoConstants.DATA_HASH_KEY,
                     KeyType.HASH))
             .withProvisionedThroughput(baseThroughput)
             .withGlobalSecondaryIndexes(
                 new GlobalSecondaryIndex()
-                    .withIndexName(DynamoDbConstants.MAPPING_GSI_NAME)
+                    .withIndexName(DynamoConstants.DATA_GSI_NAME)
                     .withKeySchema(
                         new KeySchemaElement(
-                            DynamoDbConstants.MAPPING_GSI_KEY_NAME,
+                            DynamoConstants.DATA_GSI_KEY,
                             KeyType.HASH))
-                    .withProjection(DynamoDbConstants.MAPPING_GSI_PROJECTION)
+                    .withProjection(DynamoConstants.DATA_GSI_PROJECTION)
                     .withProvisionedThroughput(gsiThroughput));
         return req;
     }
@@ -133,7 +133,7 @@ public class DDLDynamoDbClient implements DbDDLClient {
         TableDescription td = null;
         // TODO: timeout?
         try {
-            td = mappingTable.waitForActiveOrDelete();
+            td = dataTable.waitForActiveOrDelete();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             doFail(METHOD_NAME, "got interrupted getting table status");
@@ -150,7 +150,7 @@ public class DDLDynamoDbClient implements DbDDLClient {
                  "schema", actualSchema);
         KeySchemaElement actualHashKey = actualSchema.get(0);
         doAssert(actualHashKey.getAttributeName().equals(
-                     DynamoDbConstants.MAPPING_HASH_KEY_NAME) &&
+                     DynamoConstants.DATA_HASH_KEY) &&
                  actualHashKey.getKeyType().equals(KeyType.HASH.name()),
                  METHOD_NAME, "incorrect schema",
                  "hashKey", actualHashKey);
@@ -174,7 +174,7 @@ public class DDLDynamoDbClient implements DbDDLClient {
                  "GSIs", actualGSIs);
         GlobalSecondaryIndexDescription actualGSI = actualGSIs.get(0);
         String actualGSIName = actualGSI.getIndexName();
-        doAssert(actualGSIName.equals(DynamoDbConstants.MAPPING_GSI_NAME),
+        doAssert(actualGSIName.equals(DynamoConstants.DATA_GSI_NAME),
                  METHOD_NAME, "incorrect gsi name",
                  "indexName", actualGSIName);
 
@@ -185,7 +185,7 @@ public class DDLDynamoDbClient implements DbDDLClient {
                  "schema", actualGSISchema);
         KeySchemaElement actualGSIHashKey = actualGSISchema.get(0);
         doAssert(actualGSIHashKey.getAttributeName().equals(
-                     DynamoDbConstants.MAPPING_GSI_KEY_NAME) &&
+                     DynamoConstants.DATA_GSI_KEY) &&
                  actualGSIHashKey.getKeyType().equals(KeyType.HASH.name()),
                  METHOD_NAME, "incorrect gsi schema",
                  "hashKey", actualGSIHashKey);
@@ -203,7 +203,7 @@ public class DDLDynamoDbClient implements DbDDLClient {
         // projection
         Projection actualProjection = actualGSI.getProjection();
         doAssert(actualProjection.equals(
-                     DynamoDbConstants.MAPPING_GSI_PROJECTION),
+                     DynamoConstants.DATA_GSI_PROJECTION),
                  METHOD_NAME, "incorrect gsi projection",
                  "projection", actualProjection);
     }
@@ -220,7 +220,7 @@ public class DDLDynamoDbClient implements DbDDLClient {
         TableDescription td = null;
         // TODO: timeout?
         try {
-            td = mappingTable.waitForActiveOrDelete();
+            td = dataTable.waitForActiveOrDelete();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             doFail(METHOD_NAME, "got interrupted getting table status");
@@ -233,11 +233,11 @@ public class DDLDynamoDbClient implements DbDDLClient {
         }
 
         // issue delete and wait for completion
-        DeleteTableResult result = mappingTable.delete();
+        DeleteTableResult result = dataTable.delete();
         info(METHOD_NAME, "issued delete", "deleteTableResult", result);
         // TODO: timeout?
         try {
-            mappingTable.waitForDelete();
+            dataTable.waitForDelete();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             doFail(METHOD_NAME, "got interrupted getting table status");

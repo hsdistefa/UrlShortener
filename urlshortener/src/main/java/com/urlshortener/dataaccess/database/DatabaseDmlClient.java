@@ -6,7 +6,7 @@ import com.urlshortener.dataaccess.model.UrlMappingData;
 /**
  * Class that defines data access operations
  */
-public interface DbClient {
+public interface DatabaseDmlClient {
 
     /**
      * Stores an (alias url -> original url) mapping

@@ -5,9 +5,9 @@ import static com.urlshortener.logging.AppLogger.info;
 
 import com.urlshortener.Stage;
 import com.urlshortener.config.Config;
-import com.urlshortener.dataaccess.database.DbClient;
-import com.urlshortener.dataaccess.database.DbClientFactory;
-import com.urlshortener.dataaccess.database.DbDDLClient;
+import com.urlshortener.dataaccess.database.DatabaseClientFactory;
+import com.urlshortener.dataaccess.database.DatabaseDdlClient;
+import com.urlshortener.dataaccess.database.DatabaseDmlClient;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -18,14 +18,14 @@ import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 /**
  * Factory that creates DynamoDb clients
  */
-public class DynamoDbClientFactory extends DbClientFactory {
+public class DynamoClientFactory extends DatabaseClientFactory {
 
     private final DynamoDB dynamoDb;
 
-    public DynamoDbClientFactory(Config config, Stage stage) {
+    public DynamoClientFactory(Config config, Stage stage) {
         super(config);
 
-        final String METHOD_NAME = "DynamoDbClientFactory";
+        final String METHOD_NAME = "DynamoClientFactory";
 
         // get properties according to stage
         AWSCredentials credentials = null;
@@ -58,12 +58,12 @@ public class DynamoDbClientFactory extends DbClientFactory {
     }
 
     @Override
-    public DbDDLClient createDDLClient() {
-        return new DDLDynamoDbClient(config, dynamoDb);
+    public DatabaseDdlClient createDdlClient() {
+        return new DynamoDdlClient(config, dynamoDb);
     }
 
     @Override
-    public DbClient createDbClient() {
-        return new DynamoDbClient(dynamoDb);
+    public DatabaseDmlClient createDmlClient() {
+        return new DynamoDmlClient(dynamoDb);
     }
 }

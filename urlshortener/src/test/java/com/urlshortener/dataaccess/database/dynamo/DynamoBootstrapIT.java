@@ -7,7 +7,7 @@ import com.urlshortener.AssertionException;
 import com.urlshortener.Stage;
 import com.urlshortener.config.Config;
 import com.urlshortener.config.ConfigKey;
-import com.urlshortener.dataaccess.database.DbDDLClient;
+import com.urlshortener.dataaccess.database.DatabaseDdlClient;
 
 import org.junit.After;
 import org.junit.Before;
@@ -17,20 +17,20 @@ import org.junit.Test;
 /**
  * Integration tests for initial bootstrap + verification
  */
-public class DynamoDbBootstrapIT {
+public class DynamoBootstrapIT {
 
-    private DynamoDbClientFactory factory;
-    private DbDDLClient client;
+    private DynamoClientFactory factory;
+    private DatabaseDdlClient client;
     
-    public DynamoDbBootstrapIT() {
-        factory = new DynamoDbClientFactory(new Config(), Stage.INTEG);
+    public DynamoBootstrapIT() {
+        factory = new DynamoClientFactory(new Config(), Stage.INTEG);
     }
 
     @Before
     public void setUp() {
-        client = factory.createDDLClient();
+        client = factory.createDdlClient();
         assertEquals("factory constructed wrong client",
-                     client.getClass(), DDLDynamoDbClient.class);
+                     client.getClass(), DynamoDdlClient.class);
     }
 
     @After
@@ -40,13 +40,13 @@ public class DynamoDbBootstrapIT {
     }
 
     @Test
-    public void testDynamoDbBootstrapAndVerify() {
+    public void testDynamoBootstrapAndVerify() {
         client.bootstrapTables();
         client.verifyTables();
     }
 
     @Test
-    public void testDynamoDbBootstrapTwice() {
+    public void testDynamoBootstrapTwice() {
         client.bootstrapTables();
 
         try {
@@ -90,14 +90,14 @@ public class DynamoDbBootstrapIT {
 
         // override the table config
         Config config = new Config();
-        Long prevTableReads = config.getLong(ConfigKey.MappingTableReads);
-        config.setUnitTestOverride(ConfigKey.MappingTableReads,
+        Long prevTableReads = config.getLong(ConfigKey.DataTableReads);
+        config.setUnitTestOverride(ConfigKey.DataTableReads,
                                    "" + (prevTableReads + 1L));
 
         // create the table
-        DynamoDbClientFactory tmpFactory = new DynamoDbClientFactory(config,
-                                                                  Stage.INTEG);
-        DbDDLClient tmpClient = tmpFactory.createDDLClient();
+        DynamoClientFactory tmpFactory = new DynamoClientFactory(config,
+                                                                 Stage.INTEG);
+        DatabaseDdlClient tmpClient = tmpFactory.createDdlClient();
         tmpClient.bootstrapTables();
         tmpClient.close();
 
@@ -115,14 +115,14 @@ public class DynamoDbBootstrapIT {
 
         // override the gsi config
         Config config = new Config();
-        Long prevGSIReads = config.getLong(ConfigKey.MappingGSIReads);
-        config.setUnitTestOverride(ConfigKey.MappingGSIReads,
+        Long prevGSIReads = config.getLong(ConfigKey.DataGSIReads);
+        config.setUnitTestOverride(ConfigKey.DataGSIReads,
                                    "" + (prevGSIReads + 1L));
 
         // create the table
-        DynamoDbClientFactory tmpFactory = new DynamoDbClientFactory(config,
-                                                                  Stage.INTEG);
-        DbDDLClient tmpClient = tmpFactory.createDDLClient();
+        DynamoClientFactory tmpFactory = new DynamoClientFactory(config,
+                                                                 Stage.INTEG);
+        DatabaseDdlClient tmpClient = tmpFactory.createDdlClient();
         tmpClient.bootstrapTables();
         tmpClient.close();
 

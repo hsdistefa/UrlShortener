@@ -15,22 +15,24 @@ import com.urlshortener.dataaccess.ClientPoolExhaustedException;
  * By keeping a limited-size pool of db clients, we can prevent ourselves
  * from overloading the db
  */
-public class DbClientPool {
+public class DatabaseDmlClientPool {
 
     private volatile boolean isShutdown = false;
 
     private final Config config;
-    private final ConcurrentLinkedQueue<DbClient> clientPool;
+    private final ConcurrentLinkedQueue<DatabaseDmlClient> clientPool;
 
-    public DbClientPool(Config config, DbClientFactory dbClientFactory) {
+    public DatabaseDmlClientPool(Config config,
+                                 DatabaseClientFactory clientFactory) {
         this.config = config;
         this.clientPool = new ConcurrentLinkedQueue<>();
 
         int numClients = config.getInt(ConfigKey.NumDbClients);
-        doAssert(numClients > 0, "DbClientPool", "invalid number of clients",
-                     "numClients", numClients);
+        doAssert(numClients > 0, "DatabaseDmlClientPool",
+                 "invalid number of clients",
+                 "numClients", numClients);
         for (int i = 0; i < numClients; i++) {
-            clientPool.offer(dbClientFactory.createDbClient());
+            clientPool.offer(clientFactory.createDmlClient());
         }
     }
 
@@ -39,8 +41,8 @@ public class DbClientPool {
      * Otherwise, fail fast and throws
      * IMPORTANT - return the db client unconditionally
      */
-    public DbClient getClient() throws ClientPoolExhaustedException {
-        DbClient client = null;
+    public DatabaseDmlClient getClient() throws ClientPoolExhaustedException {
+        DatabaseDmlClient client = null;
         try {
             client = clientPool.remove();
         } catch (NoSuchElementException e) {
@@ -53,7 +55,7 @@ public class DbClientPool {
     /**
      * Returns a db client to the pool
      */
-    public void returnClient(DbClient client) {
+    public void returnClient(DatabaseDmlClient client) {
         if (isShutdown) {
             client.close();
         } else {
@@ -63,9 +65,10 @@ public class DbClientPool {
 
     /**
      * Releases all resources
+     * TODO: close dynamo
      */
     public void close() {
-        info("close", "closing DbClientPool");
+        info("close", "closing DatabaseDmlClientPool");
         isShutdown = true;
         try {
             while (true) {

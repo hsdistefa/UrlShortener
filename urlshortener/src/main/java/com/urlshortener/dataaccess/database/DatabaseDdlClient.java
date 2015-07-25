@@ -6,7 +6,7 @@ import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 /**
  * Class that defines DDL operations
  */
-public interface DbDDLClient {
+public interface DatabaseDdlClient {
 
     /**
      * Bootstraps the database tables
