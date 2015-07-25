@@ -4,6 +4,7 @@ import static com.urlshortener.logging.AppLogger.doAssert;
 import static com.urlshortener.logging.AppLogger.doFail;
 import static com.urlshortener.logging.AppLogger.info;
 
+import static spark.Spark.get;
 import static spark.Spark.post;
 
 import com.urlshortener.Stage;
@@ -11,6 +12,7 @@ import com.urlshortener.config.Config;
 import com.urlshortener.dataaccess.DataAccess;
 import com.urlshortener.dataaccess.model.UrlMappingData;
 import com.urlshortener.logging.AppLogger;
+import com.urlshortener.requesthandler.model.RedirectResponse;
 import com.urlshortener.requesthandler.model.ShortenRequest;
 import com.urlshortener.requesthandler.model.ShortenResponse;
 import com.urlshortener.requesthandler.validation.AddressValidator;
@@ -118,8 +120,8 @@ public class RequestHandler {
                         byte[] aliasBytes = encoder.decodeBase64(newAliasUrl);
                         aliasDec = ByteBuffer.wrap(aliasBytes).getLong() + 1;
                         newAliasUrl = encoder.encodeBase64URLSafeString(
-                                ByteBuffer.allocate(Long.SIZE).
-                                putLong(aliasDec).array());
+                                ByteBuffer.allocate(Long.SIZE)
+                                .putLong(aliasDec).array());
 
                         prevAlias = DATA_ACCESS.getMappingForAliasUrl(newAliasUrl);
                     }
@@ -142,6 +144,30 @@ public class RequestHandler {
                 return ShortenResponse.toJson(shortenResponse);
             } catch (Exception e) {
                 // TODO
+                throw new Exception();
+            }
+        });
+        get("/*", (request, response) -> {
+            // TODO remember to test /shorten
+
+            try {
+                // retrieve url mapping for alias
+                UrlMappingData prevMapping = DATA_ACCESS.getMappingForAliasUrl(
+                        request.splat()[0]
+                    );
+
+                // handle alias not found
+                if (prevMapping == null) {
+                    // TODO - generate bad response
+                }
+
+                // redirect to mapped url (success)
+                response.status(200);
+                response.redirect(prevMapping.originalUrl);
+                RedirectResponse redirectResponse = new RedirectResponse(prevMapping);
+                return RedirectResponse.toJson(redirectResponse);
+            } catch (Exception e) {
+                // TODO: generate bad response
                 throw new Exception();
             }
         });

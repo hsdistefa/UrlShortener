@@ -11,7 +11,7 @@ import com.urlshortener.dataaccess.model.UrlMappingData;
 
 /**
  * Class to access cache / database
- */ 
+ */
 public class DataAccess {
 
     private final Config config;
@@ -97,6 +97,7 @@ public class DataAccess {
             return client.getMappingForAliasUrl(aliasUrl);
         } finally {
             dbClientPool.returnClient(client);
+            return null;
         }
     }
 
