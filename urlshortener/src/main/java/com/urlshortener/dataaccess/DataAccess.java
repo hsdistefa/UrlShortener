@@ -11,7 +11,7 @@ import com.urlshortener.dataaccess.model.UrlMappingData;
 
 /**
  * Class to access cache / database
- */ 
+ */
 public class DataAccess {
 
     private final Config config;
