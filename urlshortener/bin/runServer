@@ -32,7 +32,7 @@ fi
 ddb_local_pid=$!
 trap handle_SIGINT SIGINT
 echo 'waiting for dynamodb local bg process to start'
-sleep 10
+sleep 5
 
 # bootstrap dynamodb local, exit on failure
 ./bin/bootstrapDynamoDbLocal
