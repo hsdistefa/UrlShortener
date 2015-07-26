@@ -1,0 +1,46 @@
+#!/bin/sh
+
+# IMPORTANT: until I fix this script, run from mvn home directory after building
+
+handle_SIGINT() {
+    if [ "$ddb_local_pid" != '' ] ; then
+        echo 'attempting to kill dynamodb local. pid:' $ddb_local_pid
+        pkill -P $ddb_local_pid
+        kill $ddb_local_pid
+    fi
+    exit 1
+}
+
+# check for dangling processes
+./bin/checkRunningServer $$
+server_running=$?
+./bin/checkRunningDynamoDbLocal
+dynamodb_local_running=$?
+
+# exit if processes running unless --force is specified
+if [ "$server_running" -ne 0 ] || [ "$dynamodb_local_running" -ne 0 ] ; then
+    if [ "$1" == '--force' ] ; then
+        echo 'unexpected processes running. --force was specified so continuing'
+    else
+        echo 'unexpected processes running. exiting now (use --force to skip check)'
+        exit 1
+    fi
+fi
+
+# start dynamodb local and kill it we get ctrl-c'd
+./bin/startDynamoDbLocal&
+ddb_local_pid=$!
+trap handle_SIGINT SIGINT
+echo 'waiting for dynamodb local bg process to start'
+sleep 10
+
+# bootstrap dynamodb local, exit on failure
+./bin/bootstrapDynamoDbLocal
+if [ "$?" -ne 0 ] ; then
+    echo 'dynamodb local bootstrap failed. exiting now'
+    exit 1
+fi
+
+# starting server
+mvn exec:java -Dexec.mainClass="com.urlshortener.requesthandler.RequestHandler" -Dexec.args="ADHOC"
+echo 'server quit unexpectedly'
