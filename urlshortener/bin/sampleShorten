@@ -1,0 +1,1 @@
+curl -H "Content-Type: application/json" -X POST -d '{"url": "http://google.com"}' localhost:35000/shorten --verbose

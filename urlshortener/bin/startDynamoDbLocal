@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo 'running dynamodb local'
+java -Djava.library.path=./target/dynamodb-dist/DynamoDBLocal_lib -jar ./target/dynamodb-dist/DynamoDBLocal.jar -sharedDb -inMemory -port 45678

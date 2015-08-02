@@ -1,0 +1,4 @@
+#!/bin/sh
+
+echo 'bootstrapping dynamodb local'
+mvn exec:java -Dexec.mainClass="com.urlshortener.tools.BootstrapPersistentStore" -Dexec.args="ADHOC"

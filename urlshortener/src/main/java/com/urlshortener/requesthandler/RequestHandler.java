@@ -5,6 +5,7 @@ import static com.urlshortener.logging.AppLogger.doFail;
 import static com.urlshortener.logging.AppLogger.info;
 
 import static spark.Spark.get;
+import static spark.Spark.port;
 import static spark.Spark.post;
 
 import com.urlshortener.Stage;
@@ -73,6 +74,9 @@ public class RequestHandler {
         // verify data access is properly bootstrapped
         DATA_ACCESS = new DataAccess(CONFIG, stage);
         DATA_ACCESS.verifyPersistentStore();
+
+        // set obscure port for now
+        port(35000);
 
         /**
          * Takes a url and returns an alias url that will link back to
@@ -159,10 +163,10 @@ public class RequestHandler {
          * url mapped to that wildcard
          */
         get("/*", (request, response) -> {
-            // TODO remember to test /shorten
 
             try {
                 // retrieve url mapping for alias
+                String aliasUrl = request.splat()[0];
                 UrlMappingData prevMapping = DATA_ACCESS.getMappingForAliasUrl(
                         request.splat()[0]);
 

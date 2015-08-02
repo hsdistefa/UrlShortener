@@ -1,0 +1,8 @@
+#!/bin/sh
+
+echo 'checking running dynamodb local'
+pid=`ps -ef | grep -i DynamoDBLocal.jar | grep -iv grep`
+if [ "$pid" != '' ] ;  then
+    echo 'possible running dynamodb local found' $pid
+    exit 1
+fi

@@ -37,6 +37,11 @@ public class DynamoClientFactory extends DatabaseClientFactory {
                 endpoint = "http://localhost:";
                 port = System.getProperty("dynamodb.port");
                 break;
+            case ADHOC:
+                credentials = new BasicAWSCredentials("", "");
+                endpoint = "http://localhost:";
+                port = "45678";
+                break;
             case CLUSTER:
                 doFail(METHOD_NAME, "not implemented yet");
                 break;
