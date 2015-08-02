@@ -127,6 +127,11 @@
       <version>1.4.1</version>
     </dependency>
     <dependency>
+        <groupId>io.mola.galimatias</groupId>
+        <artifactId>galimatias</artifactId>
+        <version>0.2.0</version>
+    </dependency>
+    <dependency>
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-java-sdk</artifactId>
       <version>1.10.2</version>

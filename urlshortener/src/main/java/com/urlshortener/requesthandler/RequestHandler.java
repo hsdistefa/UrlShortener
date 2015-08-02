@@ -15,6 +15,7 @@ import com.urlshortener.logging.AppLogger;
 import com.urlshortener.requesthandler.model.RedirectResponse;
 import com.urlshortener.requesthandler.model.ShortenRequest;
 import com.urlshortener.requesthandler.model.ShortenResponse;
+import com.urlshortener.requesthandler.normalization.UrlNormalizer;
 import com.urlshortener.requesthandler.validation.AddressValidator;
 import com.urlshortener.requesthandler.validation.BlacklistValidator;
 import com.urlshortener.requesthandler.validation.Validator;
@@ -95,16 +96,21 @@ public class RequestHandler {
                     }
                 }
 
+                // normalize the url to remove some would-be duplicates
+                UrlNormalizer urlNormalizer = new UrlNormalizer();
+                String normalizedUrl = urlNormalizer.normalizeUrl(shortenRequest.url);
+
+
                 // check persistent store to see if an alias has already been created
                 UrlMappingData prevMapping = DATA_ACCESS.getMappingForOriginalUrl(
-                    shortenRequest.url);
+                    normalizedUrl);
                 if (prevMapping != null) {
                     return new ShortenResponse(prevMapping);
                 }
 
                 // create new url alias
                 UrlAliaser aliaser = new UrlAliaser(CONFIG);
-                String newAliasUrl = aliaser.getAlias(shortenRequest.url);
+                String newAliasUrl = aliaser.getAlias(normalizedUrl);
 
                 // check for alias (hash) collision
                 UrlMappingData prevAlias = DATA_ACCESS.getMappingForAliasUrl(newAliasUrl);
@@ -130,7 +136,7 @@ public class RequestHandler {
 
                 // generate new mapping
                 long creationTime = System.currentTimeMillis() / 1000;
-                UrlMappingData newMapping = new UrlMappingData(shortenRequest.url,
+                UrlMappingData newMapping = new UrlMappingData(normalizedUrl,
                                                                newAliasUrl,
                                                                creationTime);
 
@@ -149,7 +155,8 @@ public class RequestHandler {
         });
 
         /**
-         * harison TODO: put some comments bro and fix yoru name spelling
+         * Takes an alias url as a wildcard and redirect to the original
+         * url mapped to that wildcard
          */
         get("/*", (request, response) -> {
             // TODO remember to test /shorten
